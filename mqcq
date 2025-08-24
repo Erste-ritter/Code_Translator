@@ -1,0 +1,32 @@
+import torch
+import torch.nn as nn
+
+
+def function04(x: torch.Tensor, y: torch.Tensor) -> nn.Module:
+    # Создание полносвязного слоя
+    n_features = x.shape[1]
+    fc_layer = nn.Linear(n_features, 1, bias=True)  # Выход размером 1 для регрессии
+
+    # Определение оптимизатора
+    optimizer = torch.optim.SGD(fc_layer.parameters(), lr=1e-2)
+    criterion = nn.MSELoss()
+
+    # Обучение
+    num_epochs = 2000  # Достаточно для сходимости
+    for _ in range(num_epochs):
+        # Прямой проход
+        y_pred = fc_layer(x).squeeze()  # Убираем лишнюю размерность
+
+        # Вычисление потерь
+        loss = criterion(y_pred, y)
+
+        # Обратный проход и оптимизация
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        # Проверка условия MSE < 0.3
+        if loss.item() < 0.3:
+            break
+
+    return fc_layer
